@@ -153,52 +153,113 @@ button[data-variant='primary']:hover {
 }
 
 [data-component='root/widget_trigger'] {
+  /* Glass-orb stack: two specular glares + glossy top band + ambient vignette + indigo base */
   background:
-    radial-gradient(circle at 28% 20%, rgba(255,255,255,0.28), transparent 55%),
-    linear-gradient(135deg, #5A5AF0 0%, #3636EA 50%, #2424C8 100%);
+    /* Primary glare (top-left, large, bright) */
+    radial-gradient(ellipse 70% 55% at 22% 18%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.12) 28%, rgba(255,255,255,0) 55%),
+    /* Secondary glare (bottom-right, small, soft) */
+    radial-gradient(ellipse 38% 32% at 80% 84%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 60%),
+    /* Glossy top band — like an iOS app icon's wet sheen */
+    linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 38%),
+    /* Edge vignette so center reads richer */
+    radial-gradient(circle at 50% 50%, rgba(36,36,200,0) 55%, rgba(20,20,150,0.35) 100%),
+    /* Indigo base */
+    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
   border-radius: 22px;
+  /* Edge bleed: ghost-white halo + indigo chromatic ring (the "outer colors wrap the button" effect) */
   box-shadow:
-    0 14px 32px -10px rgba(54,54,234,0.55),
-    0 0 0 0 rgba(54,54,234,0.30),
-    inset 0 1px 0 0 rgba(255,255,255,0.28),
-    inset 0 -1px 0 0 rgba(0,0,0,0.18);
+    /* Ghost-white blend ring picking up the page canvas */
+    0 0 0 3px rgba(245,246,252,0.85),
+    /* Outer indigo dispersion — like light bending around glass */
+    0 0 0 5px rgba(54,54,234,0.08),
+    /* Drop shadow */
+    0 16px 36px -10px rgba(54,54,234,0.55),
+    /* Wider colored glow */
+    0 0 32px -6px rgba(54,54,234,0.32),
+    /* Inset glass-thickness rim — bright at top, thin on sides, dark at bottom */
+    inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
+    inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+    inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+    inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
   transition:
-    box-shadow 280ms cubic-bezier(0.22,1,0.36,1),
-    transform 280ms cubic-bezier(0.22,1,0.36,1),
-    filter 200ms ease;
+    box-shadow 320ms cubic-bezier(0.22,1,0.36,1),
+    transform 320ms cubic-bezier(0.22,1,0.36,1),
+    filter 220ms ease,
+    background-position 320ms cubic-bezier(0.22,1,0.36,1);
 }
+
 [data-component='root/widget_trigger']:hover {
-  transform: translateY(-2px) scale(1.03);
-  filter: brightness(1.06) saturate(1.05);
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.07) saturate(1.06);
+  /* On hover, glares shift slightly as if the button caught more light */
+  background:
+    radial-gradient(ellipse 72% 58% at 18% 14%, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.14) 28%, rgba(255,255,255,0) 56%),
+    radial-gradient(ellipse 42% 36% at 84% 86%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 40%),
+    radial-gradient(circle at 50% 50%, rgba(36,36,200,0) 55%, rgba(20,20,150,0.35) 100%),
+    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
   box-shadow:
-    0 20px 44px -10px rgba(54,54,234,0.70),
-    0 0 0 6px rgba(54,54,234,0.12),
-    inset 0 1px 0 0 rgba(255,255,255,0.32),
-    inset 0 -1px 0 0 rgba(0,0,0,0.18);
+    0 0 0 3px rgba(245,246,252,0.92),
+    0 0 0 7px rgba(54,54,234,0.14),
+    0 22px 48px -10px rgba(54,54,234,0.70),
+    0 0 40px -6px rgba(54,54,234,0.42),
+    inset 0 2px 1px -0.5px rgba(255,255,255,0.65),
+    inset 1.5px 0 1.5px -1px rgba(255,255,255,0.24),
+    inset -1.5px 0 1.5px -1px rgba(255,255,255,0.24),
+    inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
 }
+
 [data-component='root/widget_trigger']:active {
   transform: translateY(0) scale(0.97);
-  transition-duration: 120ms;
+  transition-duration: 140ms;
+  /* Press: highlights compress, deeper inner shadow */
+  box-shadow:
+    0 0 0 3px rgba(245,246,252,0.85),
+    0 0 0 5px rgba(54,54,234,0.08),
+    0 8px 18px -6px rgba(54,54,234,0.45),
+    0 0 20px -6px rgba(54,54,234,0.28),
+    inset 0 1px 1px -0.5px rgba(255,255,255,0.35),
+    inset 0 -2px 4px 0 rgba(0,0,0,0.25);
 }
-[data-component='root/widget_trigger'] img,
-[data-component='root/widget_trigger'] svg { transition: transform 280ms cubic-bezier(0.22,1,0.36,1); }
-[data-component='root/widget_trigger']:hover img,
-[data-component='root/widget_trigger']:hover svg { transform: scale(1.06); }
 
+[data-component='root/widget_trigger'] img,
+[data-component='root/widget_trigger'] svg {
+  transition: transform 320ms cubic-bezier(0.22,1,0.36,1), filter 320ms ease;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) drop-shadow(0 0 8px rgba(255,255,255,0.15));
+}
+[data-component='root/widget_trigger']:hover img,
+[data-component='root/widget_trigger']:hover svg {
+  transform: scale(1.06);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) drop-shadow(0 0 12px rgba(255,255,255,0.25));
+}
+
+/* Ambient pulse — animates the outer indigo dispersion ring (not the ghost ring, so the "blend with page" stays solid) */
 @keyframes voltico-ambient-pulse {
-  0%, 100% { box-shadow:
-    0 14px 32px -10px rgba(54,54,234,0.55),
-    0 0 0 0 rgba(54,54,234,0.22),
-    inset 0 1px 0 0 rgba(255,255,255,0.28),
-    inset 0 -1px 0 0 rgba(0,0,0,0.18); }
-  50% { box-shadow:
-    0 14px 32px -10px rgba(54,54,234,0.55),
-    0 0 0 12px rgba(54,54,234,0),
-    inset 0 1px 0 0 rgba(255,255,255,0.28),
-    inset 0 -1px 0 0 rgba(0,0,0,0.18); }
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(245,246,252,0.85),
+      0 0 0 5px rgba(54,54,234,0.10),
+      0 16px 36px -10px rgba(54,54,234,0.55),
+      0 0 32px -6px rgba(54,54,234,0.32),
+      inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
+      inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+      inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+      inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(245,246,252,0.85),
+      0 0 0 14px rgba(54,54,234,0),
+      0 16px 36px -10px rgba(54,54,234,0.55),
+      0 0 32px -6px rgba(54,54,234,0.32),
+      inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
+      inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+      inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
+      inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
+  }
 }
 [data-component='root/widget_trigger']:not(:hover):not(:active) {
-  animation: voltico-ambient-pulse 3.6s ease-out infinite;
+  animation: voltico-ambient-pulse 3.8s ease-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
