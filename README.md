@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Voltico Widget Demo
 
-## Getting Started
+Single-page Next.js demo showing the OpenCX chat widget themed to match Voltico's brand guidelines.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, Turbopack)
+- Tailwind CSS 4
+- React 19
+- `@opencx/widget-react`
+
+## What's branded
+
+- Color tokens (Ghost White, Bright Indigo, Space Indigo, Carbon Black)
+- Inter (free substitute for Stack Sans)
+- 28px container radius, 22px trigger radius, 24px input radius
+- Voltico V mark on the trigger (inline SVG, no broken images)
+- Premium app-icon trigger: gradient + specular shine + ambient pulse
+- Bubble corners with brand-aligned 4px "tails"
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+vercel --prod
+```
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The widget uses an OpenCX demo token. Branding on this page is for illustration only — Voltico is referenced here as a design case study.
