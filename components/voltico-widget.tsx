@@ -258,7 +258,7 @@ const CSS_OVERRIDES = `
 
 export function VolticoWidget() {
   const options: WidgetOptions = {
-    token: "b4959ed37d63c606433cea865866c3de",
+    token: "9fa71101c87491cb89309a5fc12205c5",
     language: "en",
     theme: {
       palette: "slate",
