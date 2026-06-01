@@ -32,27 +32,22 @@ const CSS_OVERRIDES = `
   --voltico-line: rgba(26, 26, 67, 0.08);
 }
 
-[data-component='chat_screen/container'],
-[data-component='welcome_screen/container'],
-[data-component='sessions_screen/container'] {
+[data-component='chat/root'],
+[data-component='sessions/root'],
+[data-component='chat/main/root'] {
   background: var(--voltico-ghost);
 }
 
-[data-component='chat_screen/header'],
-[data-component='sessions_screen/header'],
-[data-component='welcome_screen/header'] {
+[data-component='chat/header'],
+[data-component='sessions/header'] {
   background: linear-gradient(180deg, #1A1A43 0%, #14143A 100%);
   color: #fff;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  border-top-left-radius: 28px;
-  border-top-right-radius: 28px;
 }
-[data-component='chat_screen/header'] *,
-[data-component='sessions_screen/header'] *,
-[data-component='welcome_screen/header'] * { color: #fff; }
+[data-component='chat/header'] *,
+[data-component='sessions/header'] * { color: #fff; }
 
-[data-component='message/bot'] [data-component='message/bubble'],
-[data-component='message/agent'] [data-component='message/bubble'] {
+[data-component='chat/agent_msg/msg'] {
   background: #FFFFFF;
   color: var(--voltico-carbon);
   border: 1px solid var(--voltico-line);
@@ -61,7 +56,7 @@ const CSS_OVERRIDES = `
   padding: 12px 14px;
 }
 
-[data-component='message/user'] [data-component='message/bubble'] {
+[data-component='chat/user_msg/msg'] {
   background: var(--voltico-indigo);
   color: #fff;
   border-radius: 20px 20px 4px 20px;
@@ -69,69 +64,51 @@ const CSS_OVERRIDES = `
   padding: 12px 14px;
 }
 
-[data-component='chat_screen/footer'],
-[data-component='chat_screen/input_container'] {
+[data-component='chat/input_box/root'] {
   background: var(--voltico-ghost);
   padding: 12px 14px 14px;
-  border-bottom-left-radius: 28px;
-  border-bottom-right-radius: 28px;
   border-top: 1px solid var(--voltico-line);
 }
 
-[data-component='chat_screen/input'] {
+[data-component='chat/input_box/inner_root'] {
   background: #FFFFFF;
   border: 1px solid var(--voltico-line);
   border-radius: 24px;
-  padding: 10px 12px 10px 16px;
+  padding: 6px 6px 6px 16px;
   min-height: 48px;
   transition: border-color 160ms ease, box-shadow 160ms ease;
   box-shadow: 0 1px 2px rgba(26,26,67,0.04);
 }
-[data-component='chat_screen/input']:focus-within {
+[data-component='chat/input_box/inner_root']:focus-within {
   border-color: var(--voltico-indigo);
   box-shadow: 0 0 0 4px rgba(54,54,234,0.12), 0 1px 2px rgba(26,26,67,0.04);
   outline: none;
 }
-[data-component='chat_screen/input'] textarea,
-[data-component='chat_screen/input'] input {
+[data-component='chat/input_box/textarea'] {
   background: transparent;
   border: 0;
   outline: 0;
   color: var(--voltico-carbon);
 }
-[data-component='chat_screen/input'] textarea::placeholder { color: rgba(26,26,67,0.45); }
+[data-component='chat/input_box/textarea']::placeholder { color: rgba(26,26,67,0.45); }
 
-[data-component='chat_screen/send_button'] {
-  background: var(--voltico-indigo);
-  color: #fff;
-  border-radius: 9999px;
-  width: 36px; height: 36px;
-  display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 6px 14px -6px rgba(54,54,234,0.55);
-  transition: transform 160ms cubic-bezier(0.22,1,0.36,1), background 160ms ease;
-}
-[data-component='chat_screen/send_button']:hover { background: #2D2DDB; transform: translateY(-1px); }
-[data-component='chat_screen/send_button']:disabled { background: rgba(26,26,67,0.18); box-shadow: none; cursor: not-allowed; }
-
-[data-component='sessions_screen/new_conversation_button'],
-button[data-variant='primary'] {
+[data-component='sessions/new_conversation_btn'],
+[data-component='ui_lib/btn'] {
   background: var(--voltico-indigo);
   color: #fff;
   border-radius: 9999px;
   font-weight: 600;
-  padding: 12px 18px;
   box-shadow: 0 8px 20px -10px rgba(54,54,234,0.55);
   transition: transform 160ms cubic-bezier(0.22,1,0.36,1), box-shadow 160ms ease, background 160ms ease;
 }
-[data-component='sessions_screen/new_conversation_button']:hover,
-button[data-variant='primary']:hover {
+[data-component='sessions/new_conversation_btn']:hover,
+[data-component='ui_lib/btn']:hover {
   background: #2D2DDB;
   transform: translateY(-1px);
   box-shadow: 0 12px 24px -10px rgba(54,54,234,0.65);
 }
 
-[data-component='message/quick_reply'],
-[data-component='welcome_screen/prefilled_message'] {
+[data-component='chat/suggested_reply_btn'] {
   background: #FFFFFF;
   border: 1px solid var(--voltico-line);
   color: var(--voltico-space);
@@ -140,156 +117,143 @@ button[data-variant='primary']:hover {
   padding: 8px 14px;
   transition: border-color 160ms ease, color 160ms ease;
 }
-[data-component='message/quick_reply']:hover,
-[data-component='welcome_screen/prefilled_message']:hover {
+[data-component='chat/suggested_reply_btn']:hover {
   border-color: var(--voltico-indigo);
   color: var(--voltico-indigo);
 }
 
-[data-component='message/timestamp'],
-[data-component='message/meta'] {
-  color: rgba(26,26,67,0.5);
-  font-size: 11px;
-}
-
-[data-component='root/widget_trigger'] {
-  /* Glass-orb stack: two specular glares + glossy top band + ambient vignette + indigo base */
-  background:
-    /* Primary glare (top-left, large, bright) */
-    radial-gradient(ellipse 70% 55% at 22% 18%, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.12) 28%, rgba(255,255,255,0) 55%),
-    /* Secondary glare (bottom-right, small, soft) */
-    radial-gradient(ellipse 38% 32% at 80% 84%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 60%),
-    /* Glossy top band — like an iOS app icon's wet sheen */
-    linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 38%),
-    /* Edge vignette so center reads richer */
-    radial-gradient(circle at 50% 50%, rgba(36,36,200,0) 55%, rgba(20,20,150,0.35) 100%),
-    /* Indigo base */
-    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
-  border-radius: 22px;
-  /* Edge bleed: ghost-white halo + indigo chromatic ring (the "outer colors wrap the button" effect) */
-  box-shadow:
-    /* Ghost-white blend ring picking up the page canvas */
-    0 0 0 3px rgba(245,246,252,0.85),
-    /* Outer indigo dispersion — like light bending around glass */
-    0 0 0 5px rgba(54,54,234,0.08),
-    /* Drop shadow */
-    0 16px 36px -10px rgba(54,54,234,0.55),
-    /* Wider colored glow */
-    0 0 32px -6px rgba(54,54,234,0.32),
-    /* Inset glass-thickness rim — bright at top, thin on sides, dark at bottom */
-    inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
-    inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-    inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-    inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
-  transition:
-    box-shadow 320ms cubic-bezier(0.22,1,0.36,1),
-    transform 320ms cubic-bezier(0.22,1,0.36,1),
-    filter 220ms ease,
-    background-position 320ms cubic-bezier(0.22,1,0.36,1);
-}
-
-[data-component='root/widget_trigger']:hover {
-  transform: translateY(-2px) scale(1.04);
-  filter: brightness(1.07) saturate(1.06);
-  /* On hover, glares shift slightly as if the button caught more light */
-  background:
-    radial-gradient(ellipse 72% 58% at 18% 14%, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.14) 28%, rgba(255,255,255,0) 56%),
-    radial-gradient(ellipse 42% 36% at 84% 86%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 40%),
-    radial-gradient(circle at 50% 50%, rgba(36,36,200,0) 55%, rgba(20,20,150,0.35) 100%),
-    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
-  box-shadow:
-    0 0 0 3px rgba(245,246,252,0.92),
-    0 0 0 7px rgba(54,54,234,0.14),
-    0 22px 48px -10px rgba(54,54,234,0.70),
-    0 0 40px -6px rgba(54,54,234,0.42),
-    inset 0 2px 1px -0.5px rgba(255,255,255,0.65),
-    inset 1.5px 0 1.5px -1px rgba(255,255,255,0.24),
-    inset -1.5px 0 1.5px -1px rgba(255,255,255,0.24),
-    inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
-}
-
-[data-component='root/widget_trigger']:active {
-  transform: translateY(0) scale(0.97);
-  transition-duration: 140ms;
-  /* Press: highlights compress, deeper inner shadow */
-  box-shadow:
-    0 0 0 3px rgba(245,246,252,0.85),
-    0 0 0 5px rgba(54,54,234,0.08),
-    0 8px 18px -6px rgba(54,54,234,0.45),
-    0 0 20px -6px rgba(54,54,234,0.28),
-    inset 0 1px 1px -0.5px rgba(255,255,255,0.35),
-    inset 0 -2px 4px 0 rgba(0,0,0,0.25);
-}
-
-[data-component='root/widget_trigger'] img,
-[data-component='root/widget_trigger'] svg {
-  transition: transform 320ms cubic-bezier(0.22,1,0.36,1), filter 320ms ease;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) drop-shadow(0 0 8px rgba(255,255,255,0.15));
-}
-[data-component='root/widget_trigger']:hover img,
-[data-component='root/widget_trigger']:hover svg {
-  transform: scale(1.06);
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) drop-shadow(0 0 12px rgba(255,255,255,0.25));
-}
-
-/* Ambient pulse — animates the outer indigo dispersion ring (not the ghost ring, so the "blend with page" stays solid) */
-@keyframes voltico-ambient-pulse {
-  0%, 100% {
-    box-shadow:
-      0 0 0 3px rgba(245,246,252,0.85),
-      0 0 0 5px rgba(54,54,234,0.10),
-      0 16px 36px -10px rgba(54,54,234,0.55),
-      0 0 32px -6px rgba(54,54,234,0.32),
-      inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
-      inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-      inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-      inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
-  }
-  50% {
-    box-shadow:
-      0 0 0 3px rgba(245,246,252,0.85),
-      0 0 0 14px rgba(54,54,234,0),
-      0 16px 36px -10px rgba(54,54,234,0.55),
-      0 0 32px -6px rgba(54,54,234,0.32),
-      inset 0 2px 1px -0.5px rgba(255,255,255,0.55),
-      inset 1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-      inset -1.5px 0 1.5px -1px rgba(255,255,255,0.20),
-      inset 0 -2.5px 1px -0.5px rgba(0,0,0,0.22);
-  }
-}
-[data-component='root/widget_trigger']:not(:hover):not(:active) {
-  animation: voltico-ambient-pulse 3.8s ease-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-component='root/widget_trigger'],
-  [data-component='root/widget_trigger']:not(:hover):not(:active) {
-    animation: none !important;
-    transition: box-shadow 200ms ease, background-color 200ms ease;
-  }
-  [data-component='root/widget_trigger']:hover { transform: none; }
-}
-
-[data-component='message/bot'] img,
-[data-component='message/agent'] img {
+[data-component='chat/agent_msg_group/avatar_and_msgs/avatar'],
+[data-component='chat/agent_msg_group/root/avatar'] {
   border-radius: 12px;
   box-shadow: 0 2px 8px -2px rgba(54,54,234,0.35), 0 0 0 1px rgba(26,26,67,0.06);
   background: transparent;
 }
 
-[data-component='welcome_screen/container'] {
+/* === Trigger button: glass orb effect, fully contained inside the 60px button
+   The widget wraps the trigger in a 64x64 iframe with border-radius:100%, so we
+   can't render anything outside the button bounds. All "halo" / "outer color
+   bleed" effects are pushed INWARD via radial gradients and inset shadows. === */
+[data-component='trigger/btn'] {
+  border-radius: 50% !important;  /* match the circular iframe clip */
   background:
-    radial-gradient(circle at 90% -10%, rgba(54,54,234,0.10), transparent 55%),
-    radial-gradient(circle at -10% 110%, rgba(54,54,234,0.08), transparent 50%),
-    var(--voltico-ghost);
+    /* Edge halo (the "outer colors blending into the edge" — drawn INSIDE the button) */
+    radial-gradient(circle at 50% 50%,
+      transparent 0%,
+      transparent 72%,
+      rgba(245,246,252,0.55) 88%,
+      rgba(245,246,252,0.25) 96%,
+      rgba(54,54,234,0.10) 100%),
+    /* Primary glare (top-left, large, bright) */
+    radial-gradient(ellipse 75% 60% at 22% 16%,
+      rgba(255,255,255,0.78) 0%,
+      rgba(255,255,255,0.20) 24%,
+      rgba(255,255,255,0) 52%),
+    /* Secondary glare (bottom-right, small, soft) */
+    radial-gradient(ellipse 38% 32% at 78% 84%,
+      rgba(255,255,255,0.32) 0%,
+      rgba(255,255,255,0) 60%),
+    /* Glossy top band — iOS wet-sheen */
+    linear-gradient(180deg,
+      rgba(255,255,255,0.20) 0%,
+      rgba(255,255,255,0) 40%),
+    /* Edge vignette so center reads richer */
+    radial-gradient(circle at 50% 50%,
+      rgba(36,36,200,0) 55%,
+      rgba(20,20,150,0.32) 100%),
+    /* Indigo base */
+    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
+  /* All inset — outer shadows would be clipped by the iframe */
+  box-shadow:
+    inset 0 2.5px 1px -0.5px rgba(255,255,255,0.60),   /* top highlight rim */
+    inset 2px 0 1.5px -1px rgba(255,255,255,0.22),     /* left rim */
+    inset -2px 0 1.5px -1px rgba(255,255,255,0.22),    /* right rim */
+    inset 0 -3px 1.5px -0.5px rgba(0,0,0,0.25),        /* bottom inner shadow */
+    inset 0 0 0 0.5px rgba(255,255,255,0.18) !important; /* hairline glass edge */
+  transition:
+    box-shadow 320ms cubic-bezier(0.22,1,0.36,1),
+    transform 320ms cubic-bezier(0.22,1,0.36,1),
+    filter 220ms ease,
+    background-size 800ms cubic-bezier(0.22,1,0.36,1);
 }
-[data-component='welcome_screen/title'] {
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: -0.02em;
-  color: var(--voltico-carbon);
+
+[data-component='trigger/btn']:hover {
+  transform: scale(1.05);
+  filter: brightness(1.08) saturate(1.06);
+  /* Hover: glares shift toward upper-left, halo intensifies */
+  background:
+    radial-gradient(circle at 50% 50%,
+      transparent 0%,
+      transparent 68%,
+      rgba(245,246,252,0.70) 86%,
+      rgba(245,246,252,0.30) 96%,
+      rgba(54,54,234,0.14) 100%),
+    radial-gradient(ellipse 80% 65% at 18% 12%,
+      rgba(255,255,255,0.88) 0%,
+      rgba(255,255,255,0.24) 26%,
+      rgba(255,255,255,0) 54%),
+    radial-gradient(ellipse 42% 36% at 82% 86%,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0) 60%),
+    linear-gradient(180deg,
+      rgba(255,255,255,0.24) 0%,
+      rgba(255,255,255,0) 42%),
+    radial-gradient(circle at 50% 50%,
+      rgba(36,36,200,0) 55%,
+      rgba(20,20,150,0.32) 100%),
+    linear-gradient(135deg, #5A5AF0 0%, #3636EA 52%, #2424C8 100%);
+  box-shadow:
+    inset 0 3px 1px -0.5px rgba(255,255,255,0.72),
+    inset 2px 0 1.5px -1px rgba(255,255,255,0.28),
+    inset -2px 0 1.5px -1px rgba(255,255,255,0.28),
+    inset 0 -3px 1.5px -0.5px rgba(0,0,0,0.25),
+    inset 0 0 0 0.5px rgba(255,255,255,0.24) !important;
 }
+
+[data-component='trigger/btn']:active {
+  transform: scale(0.96);
+  transition-duration: 140ms;
+  box-shadow:
+    inset 0 1.5px 1px -0.5px rgba(255,255,255,0.30),
+    inset 0 -3px 6px 0 rgba(0,0,0,0.28),
+    inset 0 0 0 0.5px rgba(255,255,255,0.12) !important;
+}
+
+[data-component='trigger/btn'] img,
+[data-component='trigger/btn'] svg {
+  position: relative;
+  z-index: 1;
+  transition: transform 320ms cubic-bezier(0.22,1,0.36,1), filter 320ms ease;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.30)) drop-shadow(0 0 6px rgba(255,255,255,0.18));
+}
+[data-component='trigger/btn']:hover img,
+[data-component='trigger/btn']:hover svg {
+  transform: scale(1.04);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.30)) drop-shadow(0 0 10px rgba(255,255,255,0.28));
+}
+
+/* Ambient pulse — animates the edge halo radius, all inside the button */
+@keyframes voltico-ambient-pulse {
+  0%, 100% {
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  }
+  50% {
+    background-size: 110% 110%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  }
+}
+[data-component='trigger/btn']:not(:hover):not(:active) {
+  background-position: center;
+  animation: voltico-ambient-pulse 3.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component='trigger/btn'],
+  [data-component='trigger/btn']:not(:hover):not(:active) {
+    animation: none !important;
+    transition: box-shadow 200ms ease, background 200ms ease;
+  }
+  [data-component='trigger/btn']:hover { transform: none; }
+}
+
 `;
 
 export function VolticoWidget() {
@@ -326,8 +290,10 @@ export function VolticoWidget() {
       chatScreen: { headerTitle: "Voltico Support" },
     },
     initialMessages: [
-      "Hi — how can we help with your charging stations today?",
+      "Hi, welcome to Voltico! To point you to the right place, are you a consumer or a business?",
     ],
+    initialQuestions: ["Consumer", "Business"],
+    initialQuestionsPosition: "below-initial-messages",
     assets: {
       widgetTrigger: {
         openIcon: TRIGGER_OPEN_ICON,
