@@ -1,13 +1,17 @@
 "use client";
 
 import Script from "next/script";
-import type { Language, WidgetConfig } from "@opencx/widget-core";
+import { useEffect, useState } from "react";
+import type { WidgetConfig } from "@opencx/widget-core";
+import { useI18n, type Lang } from "@/components/i18n";
 
 declare global {
   interface Window {
     initOpenScript?: (options: WidgetConfig) => void;
   }
 }
+
+const WIDGET_ROOT_ID = "opencx-root";
 
 const TRIGGER_OPEN_ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='%23ffffff'%3E%3Crect x='13' y='17' width='12' height='12' rx='1.5'/%3E%3Cpath d='M29 17 L46 17 L37 43 L20 43 Z'/%3E%3C/g%3E%3C/svg%3E";
@@ -34,12 +38,6 @@ div:has(> a[href*='open.cx']),
 a[href*='open.cx'] { display: none !important; }
 `;
 
-// Built-in widget UI supports these codes; everything else falls back to English.
-const SUPPORTED_LANGUAGES: Language[] = [
-  "ar", "da", "de", "en", "es", "fi", "fr", "it",
-  "nl", "no", "pl", "pt", "ro", "sv", "tr",
-];
-
 type LocalizedCopy = {
   welcomeTitle: string;
   welcomeDescription: string;
@@ -50,8 +48,7 @@ type LocalizedCopy = {
 
 // Our custom strings (the widget's built-in chrome is translated by `language`,
 // but these app-specific strings are not — so we localize the ones we ship).
-// Add a language key here to localize the custom copy for it; otherwise English.
-const COPY: Partial<Record<Language, LocalizedCopy>> = {
+const COPY: Record<Lang, LocalizedCopy> = {
   en: {
     welcomeTitle: "Hi, we're Voltico.",
     welcomeDescription:
@@ -72,16 +69,8 @@ const COPY: Partial<Record<Language, LocalizedCopy>> = {
   },
 };
 
-function detectLanguage(): Language {
-  if (typeof navigator === "undefined") return "en";
-  const code = (navigator.language || "en").slice(0, 2).toLowerCase();
-  const match = SUPPORTED_LANGUAGES.find((l) => l === code);
-  return match ?? "en";
-}
-
-function buildOptions(): WidgetConfig {
-  const language = detectLanguage();
-  const copy = COPY[language] ?? COPY.en!;
+function buildOptions(language: Lang): WidgetConfig {
+  const copy = COPY[language];
 
   return {
     token: "9fa71101c87491cb89309a5fc12205c5",
@@ -143,11 +132,23 @@ function buildOptions(): WidgetConfig {
 }
 
 export function VolticoWidget() {
+  const { lang } = useI18n();
+  const [scriptReady, setScriptReady] = useState(false);
+
+  // (Re)initialize the widget whenever the embed is ready or the language
+  // changes. The embed renders into #opencx-root with no portals to the host
+  // body, so removing that node fully tears the widget down before re-init.
+  useEffect(() => {
+    if (!scriptReady || !window.initOpenScript) return;
+    document.getElementById(WIDGET_ROOT_ID)?.remove();
+    window.initOpenScript(buildOptions(lang));
+  }, [scriptReady, lang]);
+
   return (
     <Script
       src="https://unpkg.com/@opencx/widget@latest/dist-embed/script.js"
       strategy="afterInteractive"
-      onLoad={() => window.initOpenScript?.(buildOptions())}
+      onLoad={() => setScriptReady(true)}
     />
   );
 }
