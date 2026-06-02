@@ -1,14 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import type { ComponentProps } from "react";
+import Script from "next/script";
+import type { WidgetConfig } from "@opencx/widget-core";
 
-const Widget = dynamic(
-  () => import("@opencx/widget-react").then((m) => m.Widget),
-  { ssr: false },
-);
-
-type WidgetOptions = ComponentProps<typeof Widget>["options"];
+declare global {
+  interface Window {
+    initOpenScript?: (options: WidgetConfig) => void;
+  }
+}
 
 const TRIGGER_OPEN_ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='%23ffffff'%3E%3Crect x='13' y='17' width='12' height='12' rx='1.5'/%3E%3Cpath d='M29 17 L46 17 L37 43 L20 43 Z'/%3E%3C/g%3E%3C/svg%3E";
@@ -35,67 +34,73 @@ div:has(> a[href*='open.cx']),
 a[href*='open.cx'] { display: none !important; }
 `;
 
-export function VolticoWidget() {
-  const options: WidgetOptions = {
-    token: "9fa71101c87491cb89309a5fc12205c5",
-    language: "en",
-    theme: {
-      palette: "slate",
-      primaryColor: "#3636EA",
-      widgetTrigger: {
-        size: { button: 60, icon: 28 },
-        offset: { bottom: 24, right: 24 },
-      },
-      widgetContentContainer: {
-        borderRadius: "28px",
-        boxShadow:
-          "0 24px 60px -12px rgba(26, 26, 67, 0.28), 0 8px 20px -8px rgba(54, 54, 234, 0.18)",
-        outline: "1px solid",
-        outlineColor: "rgba(26, 26, 67, 0.08)",
-        transitionDuration: "260ms",
-        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-      },
-      screens: {
-        welcome: { minHeight: "520px", width: "400px" },
-        chat: { height: "640px", width: "400px" },
+const WIDGET_OPTIONS: WidgetConfig = {
+  token: "9fa71101c87491cb89309a5fc12205c5",
+  language: "en",
+  theme: {
+    palette: "slate",
+    primaryColor: "#3636EA",
+    widgetTrigger: {
+      size: { button: 60, icon: 28 },
+      offset: { bottom: 24, right: 24 },
+    },
+    widgetContentContainer: {
+      borderRadius: "28px",
+      boxShadow:
+        "0 24px 60px -12px rgba(26, 26, 67, 0.28), 0 8px 20px -8px rgba(54, 54, 234, 0.18)",
+      outline: "1px solid",
+      outlineColor: "rgba(26, 26, 67, 0.08)",
+      transitionDuration: "260ms",
+      transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+    },
+    screens: {
+      welcome: { minHeight: "520px", width: "400px" },
+      chat: { height: "640px", width: "400px" },
+    },
+  },
+  textContent: {
+    welcomeScreen: {
+      title: "Hi, we're Voltico.",
+      description:
+        "Questions about earnings, charging data, or onboarding — ask away.",
+    },
+    chatScreen: { headerTitle: "Voltico Support" },
+  },
+  initialMessages: [
+    "Hi, welcome to Voltico! To point you to the right place, are you a consumer or a business?",
+  ],
+  initialQuestions: ["Consumer", "Business"],
+  initialQuestionsPosition: "below-initial-messages",
+  assets: {
+    widgetTrigger: {
+      openIcon: TRIGGER_OPEN_ICON,
+      closeIcon: TRIGGER_CLOSE_ICON,
+    },
+  },
+  bot: {
+    name: "Volt",
+    avatarUrl: BOT_AVATAR,
+  },
+  humanAgent: { name: "Voltico Team" },
+  user: {
+    externalId: `demo_${typeof window !== "undefined" ? (window.crypto?.randomUUID?.() ?? "anon") : "anon"}`,
+    data: {
+      name: "Visitor",
+      customData: {
+        source: "voltico-widget-demo",
+        org_name: "Voltico Widget",
       },
     },
-    textContent: {
-      welcomeScreen: {
-        title: "Hi, we're Voltico.",
-        description:
-          "Questions about earnings, charging data, or onboarding — ask away.",
-      },
-      chatScreen: { headerTitle: "Voltico Support" },
-    },
-    initialMessages: [
-      "Hi, welcome to Voltico! To point you to the right place, are you a consumer or a business?",
-    ],
-    initialQuestions: ["Consumer", "Business"],
-    initialQuestionsPosition: "below-initial-messages",
-    assets: {
-      widgetTrigger: {
-        openIcon: TRIGGER_OPEN_ICON,
-        closeIcon: TRIGGER_CLOSE_ICON,
-      },
-    },
-    bot: {
-      name: "Volt",
-      avatarUrl: BOT_AVATAR,
-    },
-    humanAgent: { name: "Voltico Team" },
-    user: {
-      externalId: `demo_${typeof window !== "undefined" ? (window.crypto?.randomUUID?.() ?? "anon") : "anon"}`,
-      data: {
-        name: "Visitor",
-        customData: {
-          source: "voltico-widget-demo",
-          org_name: "Voltico Widget",
-        },
-      },
-    },
-    cssOverrides: CSS_OVERRIDES,
-  };
+  },
+  cssOverrides: CSS_OVERRIDES,
+};
 
-  return <Widget options={options} />;
+export function VolticoWidget() {
+  return (
+    <Script
+      src="https://unpkg.com/@opencx/widget@latest/dist-embed/script.js"
+      strategy="afterInteractive"
+      onLoad={() => window.initOpenScript?.(WIDGET_OPTIONS)}
+    />
+  );
 }
