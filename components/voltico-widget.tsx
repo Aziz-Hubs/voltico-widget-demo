@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { WidgetConfig } from "@opencx/widget-core";
 import { useI18n, type Lang } from "@/components/i18n";
 
@@ -12,6 +12,22 @@ declare global {
 }
 
 const WIDGET_ROOT_ID = "opencx-root";
+const WIDGET_TOKEN = "9fa71101c87491cb89309a5fc12205c5";
+
+// The widget persists the visitor's contact under `opencx-widget:*` keys, so a
+// plain re-init restores the existing session — and initialMessages only render
+// in a fresh, empty conversation. Clearing those keys starts a new session so
+// the newly-localized initial message shows after a language switch.
+function resetWidgetSession() {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key?.startsWith("opencx-widget:")) localStorage.removeItem(key);
+    }
+  } catch (e) {
+    console.error("Failed to reset widget session", { _e: e });
+  }
+}
 
 const TRIGGER_OPEN_ICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='%23ffffff'%3E%3Crect x='13' y='17' width='12' height='12' rx='1.5'/%3E%3Cpath d='M29 17 L46 17 L37 43 L20 43 Z'/%3E%3C/g%3E%3C/svg%3E";
@@ -74,7 +90,7 @@ function buildOptions(language: Lang): WidgetConfig {
   const copy = COPY[language] ?? COPY.en!;
 
   return {
-    token: "9fa71101c87491cb89309a5fc12205c5",
+    token: WIDGET_TOKEN,
     language,
     theme: {
       palette: "slate",
@@ -135,14 +151,20 @@ function buildOptions(language: Lang): WidgetConfig {
 export function VolticoWidget() {
   const { lang } = useI18n();
   const [scriptReady, setScriptReady] = useState(false);
+  const initializedRef = useRef(false);
 
   // (Re)initialize the widget whenever the embed is ready or the language
   // changes. The embed renders into #opencx-root with no portals to the host
   // body, so removing that node fully tears the widget down before re-init.
   useEffect(() => {
     if (!scriptReady || !window.initOpenScript) return;
+    // On a deliberate language switch (not the first load), start a fresh
+    // session so the newly-localized initial message renders. First load keeps
+    // any existing session so returning visitors don't lose their chat.
+    if (initializedRef.current) resetWidgetSession();
     document.getElementById(WIDGET_ROOT_ID)?.remove();
     window.initOpenScript(buildOptions(lang));
+    initializedRef.current = true;
   }, [scriptReady, lang]);
 
   return (
