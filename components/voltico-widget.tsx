@@ -48,7 +48,8 @@ type LocalizedCopy = {
 
 // Our custom strings (the widget's built-in chrome is translated by `language`,
 // but these app-specific strings are not — so we localize the ones we ship).
-const COPY: Record<Lang, LocalizedCopy> = {
+// EN/NL are translated; other languages fall back to English here.
+const COPY: Partial<Record<Lang, LocalizedCopy>> = {
   en: {
     welcomeTitle: "Hi, we're Voltico.",
     welcomeDescription:
@@ -70,7 +71,7 @@ const COPY: Record<Lang, LocalizedCopy> = {
 };
 
 function buildOptions(language: Lang): WidgetConfig {
-  const copy = COPY[language];
+  const copy = COPY[language] ?? COPY.en!;
 
   return {
     token: "9fa71101c87491cb89309a5fc12205c5",

@@ -9,7 +9,28 @@ import {
   useState,
 } from "react";
 
-export type Lang = "en" | "nl";
+// Every language the OpenCX widget's built-in UI supports. EN/NL also have
+// fully translated page + custom copy; the rest get localized widget chrome
+// and fall back to English for the page/custom strings.
+export const LANGUAGES = [
+  { code: "en", label: "English" },
+  { code: "nl", label: "Nederlands" },
+  { code: "de", label: "Deutsch" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
+  { code: "it", label: "Italiano" },
+  { code: "pt", label: "Português" },
+  { code: "da", label: "Dansk" },
+  { code: "sv", label: "Svenska" },
+  { code: "no", label: "Norsk" },
+  { code: "fi", label: "Suomi" },
+  { code: "pl", label: "Polski" },
+  { code: "ro", label: "Română" },
+  { code: "tr", label: "Türkçe" },
+  { code: "ar", label: "العربية" },
+] as const;
+
+export type Lang = (typeof LANGUAGES)[number]["code"];
 
 export type Dict = {
   nav: { product: string; how: string; useCases: string; calc: string; contact: string };
@@ -114,7 +135,9 @@ const NL: Dict = {
   footer: { rights: "Voltico — Demopagina. Branding alleen ter illustratie.", privacy: "Privacy", terms: "Voorwaarden", contact: "Contact" },
 };
 
-const DICTS: Record<Lang, Dict> = { en: EN, nl: NL };
+// Only EN/NL have full page translations; other languages fall back to English
+// copy (their widget chrome is still localized via the `language` field).
+const DICTS: Partial<Record<Lang, Dict>> = { en: EN, nl: NL };
 
 type I18nValue = { lang: Lang; setLang: (l: Lang) => void; t: Dict };
 
@@ -122,11 +145,16 @@ const I18nContext = createContext<I18nValue | null>(null);
 
 const STORAGE_KEY = "voltico-lang";
 
+function isLang(value: string): value is Lang {
+  return LANGUAGES.some((l) => l.code === value);
+}
+
 function initialLang(): Lang {
   if (typeof window === "undefined") return "en";
   const saved = window.localStorage.getItem(STORAGE_KEY);
-  if (saved === "en" || saved === "nl") return saved;
-  return (navigator.language || "en").toLowerCase().startsWith("nl") ? "nl" : "en";
+  if (saved && isLang(saved)) return saved;
+  const code = (navigator.language || "en").slice(0, 2).toLowerCase();
+  return isLang(code) ? code : "en";
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -142,7 +170,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, l);
   }, []);
 
-  const value = useMemo<I18nValue>(() => ({ lang, setLang, t: DICTS[lang] }), [lang, setLang]);
+  const value = useMemo<I18nValue>(
+    () => ({ lang, setLang, t: DICTS[lang] ?? EN }),
+    [lang, setLang],
+  );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
@@ -156,27 +187,32 @@ export function useI18n(): I18nValue {
 export function LanguageToggle() {
   const { lang, setLang } = useI18n();
   return (
-    <div
-      className="inline-flex items-center rounded-full border border-[color:var(--color-line)] bg-white p-0.5 text-[12px] font-semibold"
-      role="group"
-      aria-label="Language"
-    >
-      {(["en", "nl"] as const).map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={
-            "px-3 py-1 rounded-full transition-colors " +
-            (lang === l
-              ? "bg-[color:var(--color-indigo-bright)] text-white"
-              : "text-[color:var(--color-space)]/70 hover:text-[color:var(--color-carbon)]")
-          }
-        >
-          {l.toUpperCase()}
-        </button>
-      ))}
-    </div>
+    <label className="relative inline-flex items-center">
+      <span className="sr-only">Language</span>
+      <select
+        value={lang}
+        onChange={(e) => {
+          const next = e.target.value;
+          if (isLang(next)) setLang(next);
+        }}
+        className="appearance-none rounded-full border border-[color:var(--color-line)] bg-white pl-3.5 pr-8 py-1.5 text-[13px] font-medium text-[color:var(--color-space)] hover:border-[color:var(--color-space)]/20 focus:border-[color:var(--color-indigo-bright)] focus:outline-none focus:ring-4 focus:ring-[color:var(--color-indigo-bright)]/12 transition-colors cursor-pointer"
+      >
+        {LANGUAGES.map((l) => (
+          <option key={l.code} value={l.code}>
+            {l.label}
+          </option>
+        ))}
+      </select>
+      <svg
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-space)]/50"
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path d="M2 3.5 L5 6.5 L8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </label>
   );
 }
