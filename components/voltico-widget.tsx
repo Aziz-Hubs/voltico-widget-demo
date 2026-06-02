@@ -152,6 +152,14 @@ button[data-variant='primary']:hover {
   font-size: 11px;
 }
 
+/* Remove the "Powered by OpenCX" footer entirely — including its padding.
+   It's an unlabeled padded div wrapping a link to open.cx; scoping with
+   :has() to that link keeps this from matching any other element. */
+:host .flex.items-center.justify-center.gap-2.p-2.pt-0:has(a[href*='open.cx']) {
+  display: none !important;
+}
+:host a[href*='open.cx'] { display: none !important; }
+
 [data-component='root/widget_trigger'] {
   background:
     radial-gradient(circle at 28% 20%, rgba(255,255,255,0.28), transparent 55%),
