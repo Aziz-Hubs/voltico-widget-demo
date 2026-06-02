@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import type { WidgetConfig } from "@opencx/widget-core";
+import type { Language, WidgetConfig } from "@opencx/widget-core";
 
 declare global {
   interface Window {
@@ -34,73 +34,120 @@ div:has(> a[href*='open.cx']),
 a[href*='open.cx'] { display: none !important; }
 `;
 
-const WIDGET_OPTIONS: WidgetConfig = {
-  token: "9fa71101c87491cb89309a5fc12205c5",
-  language: "en",
-  theme: {
-    palette: "slate",
-    primaryColor: "#3636EA",
-    widgetTrigger: {
-      size: { button: 60, icon: 28 },
-      offset: { bottom: 24, right: 24 },
-    },
-    widgetContentContainer: {
-      borderRadius: "28px",
-      boxShadow:
-        "0 24px 60px -12px rgba(26, 26, 67, 0.28), 0 8px 20px -8px rgba(54, 54, 234, 0.18)",
-      outline: "1px solid",
-      outlineColor: "rgba(26, 26, 67, 0.08)",
-      transitionDuration: "260ms",
-      transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-    },
-    screens: {
-      welcome: { minHeight: "520px", width: "400px" },
-      chat: { height: "640px", width: "400px" },
-    },
+// Built-in widget UI supports these codes; everything else falls back to English.
+const SUPPORTED_LANGUAGES: Language[] = [
+  "ar", "da", "de", "en", "es", "fi", "fr", "it",
+  "nl", "no", "pl", "pt", "ro", "sv", "tr",
+];
+
+type LocalizedCopy = {
+  welcomeTitle: string;
+  welcomeDescription: string;
+  chatHeader: string;
+  initialMessage: string;
+  questions: [string, string];
+};
+
+// Our custom strings (the widget's built-in chrome is translated by `language`,
+// but these app-specific strings are not — so we localize the ones we ship).
+// Add a language key here to localize the custom copy for it; otherwise English.
+const COPY: Partial<Record<Language, LocalizedCopy>> = {
+  en: {
+    welcomeTitle: "Hi, we're Voltico.",
+    welcomeDescription:
+      "Questions about earnings, charging data, or onboarding — ask away.",
+    chatHeader: "Voltico Support",
+    initialMessage:
+      "Hi, welcome to Voltico! To point you to the right place, are you a consumer or a business?",
+    questions: ["Consumer", "Business"],
   },
-  textContent: {
-    welcomeScreen: {
-      title: "Hi, we're Voltico.",
-      description:
-        "Questions about earnings, charging data, or onboarding — ask away.",
-    },
-    chatScreen: { headerTitle: "Voltico Support" },
+  nl: {
+    welcomeTitle: "Hoi, wij zijn Voltico.",
+    welcomeDescription:
+      "Vragen over opbrengsten, laaddata of onboarding — stel ze gerust.",
+    chatHeader: "Voltico Support",
+    initialMessage:
+      "Welkom bij Voltico! Om je naar de juiste plek te helpen: ben je een consument of een bedrijf?",
+    questions: ["Consument", "Bedrijf"],
   },
-  initialMessages: [
-    "Hi, welcome to Voltico! To point you to the right place, are you a consumer or a business?",
-  ],
-  initialQuestions: ["Consumer", "Business"],
-  initialQuestionsPosition: "below-initial-messages",
-  assets: {
-    widgetTrigger: {
-      openIcon: TRIGGER_OPEN_ICON,
-      closeIcon: TRIGGER_CLOSE_ICON,
-    },
-  },
-  bot: {
-    name: "Volt",
-    avatarUrl: BOT_AVATAR,
-  },
-  humanAgent: { name: "Voltico Team" },
-  user: {
-    externalId: `demo_${typeof window !== "undefined" ? (window.crypto?.randomUUID?.() ?? "anon") : "anon"}`,
-    data: {
-      name: "Visitor",
-      customData: {
-        source: "voltico-widget-demo",
-        org_name: "Voltico Widget",
+};
+
+function detectLanguage(): Language {
+  if (typeof navigator === "undefined") return "en";
+  const code = (navigator.language || "en").slice(0, 2).toLowerCase();
+  const match = SUPPORTED_LANGUAGES.find((l) => l === code);
+  return match ?? "en";
+}
+
+function buildOptions(): WidgetConfig {
+  const language = detectLanguage();
+  const copy = COPY[language] ?? COPY.en!;
+
+  return {
+    token: "9fa71101c87491cb89309a5fc12205c5",
+    language,
+    theme: {
+      palette: "slate",
+      primaryColor: "#3636EA",
+      widgetTrigger: {
+        size: { button: 60, icon: 28 },
+        offset: { bottom: 24, right: 24 },
+      },
+      widgetContentContainer: {
+        borderRadius: "28px",
+        boxShadow:
+          "0 24px 60px -12px rgba(26, 26, 67, 0.28), 0 8px 20px -8px rgba(54, 54, 234, 0.18)",
+        outline: "1px solid",
+        outlineColor: "rgba(26, 26, 67, 0.08)",
+        transitionDuration: "260ms",
+        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+      screens: {
+        welcome: { minHeight: "520px", width: "400px" },
+        chat: { height: "640px", width: "400px" },
       },
     },
-  },
-  cssOverrides: CSS_OVERRIDES,
-};
+    textContent: {
+      welcomeScreen: {
+        title: copy.welcomeTitle,
+        description: copy.welcomeDescription,
+      },
+      chatScreen: { headerTitle: copy.chatHeader },
+    },
+    initialMessages: [copy.initialMessage],
+    initialQuestions: [...copy.questions],
+    initialQuestionsPosition: "below-initial-messages",
+    assets: {
+      widgetTrigger: {
+        openIcon: TRIGGER_OPEN_ICON,
+        closeIcon: TRIGGER_CLOSE_ICON,
+      },
+    },
+    bot: {
+      name: "Volt",
+      avatarUrl: BOT_AVATAR,
+    },
+    humanAgent: { name: "Voltico Team" },
+    user: {
+      externalId: `demo_${window.crypto?.randomUUID?.() ?? "anon"}`,
+      data: {
+        name: "Visitor",
+        customData: {
+          source: "voltico-widget-demo",
+          org_name: "Voltico Widget",
+        },
+      },
+    },
+    cssOverrides: CSS_OVERRIDES,
+  };
+}
 
 export function VolticoWidget() {
   return (
     <Script
       src="https://unpkg.com/@opencx/widget@latest/dist-embed/script.js"
       strategy="afterInteractive"
-      onLoad={() => window.initOpenScript?.(WIDGET_OPTIONS)}
+      onLoad={() => window.initOpenScript?.(buildOptions())}
     />
   );
 }
