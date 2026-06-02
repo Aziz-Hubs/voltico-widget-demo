@@ -154,11 +154,13 @@ button[data-variant='primary']:hover {
 
 /* Remove the "Powered by OpenCX" footer entirely — including its padding.
    It's an unlabeled padded div wrapping a link to open.cx; scoping with
-   :has() to that link keeps this from matching any other element. */
-:host .flex.items-center.justify-center.gap-2.p-2.pt-0:has(a[href*='open.cx']) {
+   :has() to that link keeps this from matching any other element.
+   No :host prefix — the widget renders in an iframe, where :host matches nothing. */
+div:has(> a[href*='open.cx']),
+.flex.items-center.justify-center.gap-2.p-2.pt-0:has(a[href*='open.cx']) {
   display: none !important;
 }
-:host a[href*='open.cx'] { display: none !important; }
+a[href*='open.cx'] { display: none !important; }
 
 [data-component='root/widget_trigger'] {
   background:
