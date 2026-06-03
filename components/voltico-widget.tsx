@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { WidgetConfig } from "@opencx/widget-core";
 import { useI18n, type Lang } from "@/components/i18n";
 
@@ -151,20 +151,19 @@ function buildOptions(language: Lang): WidgetConfig {
 export function VolticoWidget() {
   const { lang } = useI18n();
   const [scriptReady, setScriptReady] = useState(false);
-  const initializedRef = useRef(false);
 
   // (Re)initialize the widget whenever the embed is ready or the language
-  // changes. The embed renders into #opencx-root with no portals to the host
-  // body, so removing that node fully tears the widget down before re-init.
+  // changes. The widget only renders the localized initialMessages / buttons in
+  // a brand-new empty session — if it restores a persisted contact it shows the
+  // stale (often English) session instead. So we always start fresh: tear down
+  // the old instance first (so it can't write a contact back), clear its
+  // storage, then re-init in the current language. Demo trade-off: no
+  // returning-visitor session continuity, but the language is always correct.
   useEffect(() => {
     if (!scriptReady || !window.initOpenScript) return;
-    // On a deliberate language switch (not the first load), start a fresh
-    // session so the newly-localized initial message renders. First load keeps
-    // any existing session so returning visitors don't lose their chat.
-    if (initializedRef.current) resetWidgetSession();
     document.getElementById(WIDGET_ROOT_ID)?.remove();
+    resetWidgetSession();
     window.initOpenScript(buildOptions(lang));
-    initializedRef.current = true;
   }, [scriptReady, lang]);
 
   return (
